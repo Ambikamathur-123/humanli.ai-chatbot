@@ -1,0 +1,15 @@
+streamlit
+langchain
+langchain-core
+langchain-community
+langchain-huggingface
+transformers
+sentence-transformers
+faiss-cpu
+beautifulsoup4
+requests
+readability-lxml
+lxml
+torch
+reportlab
+pypdf
