@@ -118,8 +118,8 @@ Vector Store: FAISS
 
 # Setup and Run Instructions
 1. Clone the Repository
-git clone https://github.com/ankitchoudhary-bot/Humanli.ai-Project.git
-cd Humanli.ai-Project
+git clone https://github.com/Ambikamathur-123/humanli.ai-chatbot
+cd
 
 2. Create and Activate Virtual Environment
 python -m venv venv
