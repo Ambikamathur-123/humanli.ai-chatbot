@@ -1,125 +1,123 @@
 Website Question Answering Chatbot (RAG-Based)
+Project Overview
 
-# Project Overview
+This project is a Retrieval-Augmented Generation (RAG) based chatbot that answers user questions using the content of a given website.
 
-This project implements a Retrieval-Augmented Generation (RAG) based chatbot that allows users to ask natural language questions about a given website.
-The system scrapes website content, indexes it into a vector database, and generates answers strictly grounded in the website’s content, preventing hallucinations or external knowledge usage.
+The system first collects text from the website, stores it in a vector database, and then generates answers only from the retrieved website content. This approach helps reduce hallucinations and avoids using external knowledge.
 
-# A Streamlit-based user interface enables users to:
+User Interface (Streamlit)
 
-    Enter a website URL
+The Streamlit app allows users to:
 
-    Index the website
+Enter a website URL
 
-    Ask questions in a conversational chat interface
+Index the website content
 
-    Receive context-aware answers limited to the indexed website
+Ask questions in a chat interface
 
-# Architecture Explanation
+Get answers based only on the indexed website
 
-The system follows a modular RAG architecture:
+Architecture Overview
 
-    User (Streamlit UI)
-    ↓
-    Website URL Input
-    ↓
-    Web Scraper
-    ↓
-    Semantic Chunking (spaCy sentence-based)
-    ↓
-    Embedding Generation (SentenceTransformers)
-    ↓
-    Vector Database (FAISS - persisted)
-    ↓
-    Retriever (Top-K similarity search)
-    ↓
-    LLM (Context-only prompt)
-    ↓
-    Answer (with session-based memory)
+The chatbot follows a simple and modular RAG pipeline:
 
-# Key Design Principles
+User (Streamlit UI)
+   ↓
+Website URL
+   ↓
+Web Scraper
+   ↓
+Text Chunking (spaCy)
+   ↓
+Embedding Generation
+   ↓
+FAISS Vector Database (stored locally)
+   ↓
+Retriever (Top-K search)
+   ↓
+LLM (uses retrieved content only)
+   ↓
+Final Answer
 
-Retrieval-first: The LLM only sees retrieved website content
+Key Design Ideas
 
-Strict prompting: Prevents hallucinated answers
+Retrieval-first approach – the model only sees website data
 
-Session-only memory: Maintains short-term conversation context
+Strict prompts – prevents hallucinated answers
 
-Persistent embeddings: Avoids re-embedding on every query
+Session-based memory – keeps short chat context
 
-# AI Frameworks Used
+Persistent embeddings – avoids reprocessing data repeatedly
+
+Tools & Frameworks
 LangChain
 
-    LangChain is used as the orchestration framework to:
+Used to:
 
-    Load website content
+Load website content
 
-    Perform chunking and retrieval
+Handle chunking and retrieval
 
-    Integrate embeddings, vector storage, and LLMs
+Connect embeddings, vector store, and LLM
 
-    Build a modular RAG pipeline
+Build the overall RAG pipeline
 
-    LangGraph was not required since the application does not involve multi-agent workflows or state machines.
+LangGraph was not used since this project does not need multi-agent or state-based workflows.
 
-# LLM Model Used
+Language Model
+
 Model: google/flan-t5-large
 
-# Why this model was chosen:
+Why this model?
 
-    Open-source and free to use
+Open-source and free
 
-    Instruction-tuned for question answering
+Instruction-tuned for question answering
 
-    Strong reasoning and summarization ability
+Good reasoning and summarization
 
-    Can be run locally or via HuggingFace pipelines
+Can run locally using Hugging Face
 
-    No dependency on proprietary APIs
+No paid or proprietary APIs required
 
-    The model is used strictly in a retrieval-augmented setup, ensuring answers are grounded in website content only.
+The model is used only with retrieved website content.
 
-# Vector Database Used
-Vector Store: FAISS
+Vector Database
 
-# Why FAISS:
+FAISS
 
-    Fast similarity search
+Why FAISS?
 
-    Lightweight and local
+Fast similarity search
 
-    Ideal for small to medium-scale projects
+Lightweight and local
 
-    No external service dependency
+Easy to store and reload embeddings
 
-    Easy persistence and reload from disk
+Works well for small to medium projects
 
-    Embeddings are stored locally and reused across sessions, ensuring efficiency.
+Embeddings
 
-# Embedding Strategy
+Model: all-MiniLM-L6-v2 (SentenceTransformers)
 
-    # Embedding Model
+384-dimensional embeddings
 
-    SentenceTransformers (all-MiniLM-L6-v2)
+Fast and efficient
 
-    384-dimensional dense embeddings
+Process:
 
-# Strategy
+Website text is split using spaCy
 
-    Website content is semantically chunked using spaCy
+Each chunk is embedded once
 
-    Each chunk is converted into an embedding
+Stored in FAISS
 
-    Embeddings are stored once in FAISS
+Only similarity search is done during questions
 
-    At query time, only similarity search is performed (no re-embedding)
-
-    This provides high semantic recall with low latency.
-
-# Setup and Run Instructions
+Setup & Run Instructions
 1. Clone the Repository
-git clone https://github.com/Ambikamathur-123/humanli.ai-chatbot
-cd
+git clone https://github.com/Ambikamathur-123/humanli.ai-chatbot.git
+cd humanli.ai-chatbot
 
 2. Create and Activate Virtual Environment
 python -m venv venv
@@ -129,68 +127,63 @@ venv\Scripts\activate   # Windows
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 
-4. Run the Streamlit Application
+4. Run the Application
 streamlit run app.py
 
 5. Open in Browser
 
-Streamlit will provide a local or public URL where the chatbot UI is accessible.
+Streamlit will show a local or public URL to access the chatbot.
 
-# Assumptions
+Assumptions
 
-    The website contains meaningful textual content
+Website has readable text content
 
-    The website is publicly accessible and does not block scraping
+Website allows scraping
 
-    Single website is indexed per session
+One website per session
 
-    English-language content is assumed
+English language content
 
-# Limitations
+Limitations
 
-    JavaScript-heavy or dynamically rendered websites may not load fully
+JavaScript-heavy websites may not load fully
 
-    No cross-website querying in a single session
+No multi-website querying
 
-    No advanced relevance thresholding (cosine cutoff)
+No similarity score filtering
 
-    Large websites may increase indexing time
+Large websites may take longer to index
 
-    CPU-only inference may be slow for large LLMs
+CPU-only inference can be slow
 
-# Future Improvements
+Future Improvements
 
-    Add multi-page crawling with depth control
+Multi-page crawling with depth control
 
-    Introduce relevance score thresholds for retrieval
+Similarity score thresholds
 
-    Support multi-website indexing
+Support multiple websites
 
-    Add source citations per answer
+Show source references with answers
 
-    Implement reranking using cross-encoders
+Add reranking with cross-encoders
 
-    Deploy with GPU support for faster inference
+GPU-based deployment
 
-    Add user authentication and session IDs
+User authentication
 
-    Integrate LangGraph for complex conversational flows
+Advanced conversation flows using LangGraph
 
-# Public Streamlit Application
+Live Demo
+https://humanliai-chatbot-9drivhypwan2ptqnxgpf2s.streamlit.app/
+Final Notes
 
-👉 Live Demo:
-https://humanliai-project-283u67svk9xmbjzifvrdyc.streamlit.app/
+This project showcases:
 
-# Final Notes
+End-to-end RAG implementation
 
-    This project demonstrates:
+Hallucination-safe question answering
 
-    End-to-end RAG system design
+Clean and modular design
 
-    Hallucination-safe question answering
-
-    Clean separation of concerns
-
-    Production-aligned architecture
-
-    Evaluator- and interview-friendly implementation
+Practical, production-style architectureEvaluator- and interview-friendly implementation
